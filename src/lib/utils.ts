@@ -6,6 +6,44 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function formatDate(date: any): string {
+  if (!date) return 'N/A';
+  
+  let d: Date;
+  if (date instanceof Date) {
+    d = date;
+  } else if (typeof date?.toDate === 'function') {
+    d = date.toDate();
+  } else if (date?.seconds !== undefined) {
+    d = new Date(date.seconds * 1000);
+  } else {
+    d = new Date(date);
+  }
+
+  if (isNaN(d.getTime())) return 'Invalid Date';
+  
+  return d.toLocaleDateString();
+}
+
+export function formatYear(date: any): string {
+  if (!date) return new Date().getFullYear().toString();
+  
+  let d: Date;
+  if (date instanceof Date) {
+    d = date;
+  } else if (typeof date?.toDate === 'function') {
+    d = date.toDate();
+  } else if (date?.seconds !== undefined) {
+    d = new Date(date.seconds * 1000);
+  } else {
+    d = new Date(date);
+  }
+
+  if (isNaN(d.getTime())) return new Date().getFullYear().toString();
+  
+  return d.getFullYear().toString();
+}
+
 export enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',

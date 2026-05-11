@@ -3,7 +3,7 @@ import { db } from '../../firebase';
 import { collection, query, where, getDocs, doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { AppUser, DocumentSubmission } from '../../types';
 import { Search, MoreHorizontal, User, Mail, Hash, BookOpen, Layers, X, Save, Trash2, FileText, Eye } from 'lucide-react';
-import { cn, handleFirestoreError, OperationType } from '../../lib/utils';
+import { cn, handleFirestoreError, OperationType, formatYear } from '../../lib/utils';
 import { BatchService, BatchGroup } from '../../services/BatchService';
 import { UserService } from '../../services/UserService';
 import { DocumentService } from '../../services/DocumentService';
@@ -300,7 +300,7 @@ export default function AdminRecords() {
                         </div>
                         <div>
                           <p className="text-[13px] text-[#0d1b2a] font-black uppercase tracking-tight">{s.displayName}</p>
-                          <p className="text-[10px] text-gray-400 font-bold">MEMBER SINCE {new Date(s.createdAt).getFullYear()}</p>
+                          <p className="text-[10px] text-gray-400 font-bold">MEMBER SINCE {formatYear(s.createdAt)}</p>
                         </div>
                       </div>
                     </td>

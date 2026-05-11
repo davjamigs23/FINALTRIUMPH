@@ -14,7 +14,7 @@ import {
   Bell,
   AlertCircle
 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn, formatDate } from '../../lib/utils';
 import { DocumentService } from '../../services/DocumentService';
 import { ScheduleService } from '../../services/ScheduleService';
 import { NotificationService, Notification } from '../../services/NotificationService';
@@ -225,7 +225,7 @@ export default function StudentDashboard({ activeTab, setActiveTab }: { activeTa
                                     "text-[9px] font-black uppercase tracking-wider",
                                     notif.title.toLowerCase().includes('rejected') ? "text-red-500" : "text-[#1a237e]"
                                 )}>{notif.title}</span>
-                                <span className="text-[8px] text-gray-400 font-bold uppercase">{new Date(notif.createdAt).toLocaleDateString()}</span>
+                                <span className="text-[8px] text-gray-400 font-bold uppercase">{formatDate(notif.createdAt)}</span>
                             </div>
                             <p className="text-[11px] text-[#0d1b2a] font-medium leading-relaxed line-clamp-2">{notif.message}</p>
                         </div>
@@ -245,7 +245,7 @@ export default function StudentDashboard({ activeTab, setActiveTab }: { activeTa
                    {booking ? 'Booked' : 'Not Booked'}
                 </div>
                 <p className="text-sm font-medium mb-8">
-                   {booking ? `Session scheduled for ${new Date(booking.date).toLocaleDateString()}` : "No session booked yet."}
+                   {booking ? `Session scheduled for ${formatDate(booking.date)}` : "No session booked yet."}
                 </p>
                 <button 
                     onClick={() => setActiveTab('schedule')}

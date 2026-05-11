@@ -4,7 +4,7 @@ import { AnnouncementService } from '../../services/AnnouncementService';
 import { NotificationService, Notification } from '../../services/NotificationService';
 import { Announcement } from '../../types';
 import { Bell, Pin, Clock, Megaphone, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn, formatDate } from '../../lib/utils';
 
 export default function AnnouncementBoard() {
   const { user } = useAuth();
@@ -115,7 +115,7 @@ export default function AnnouncementBoard() {
                     <div className="flex items-center gap-4 mb-2">
                        <span className="text-[10px] font-black uppercase tracking-widest text-[#1a237e]">{ann.category}</span>
                        <span className="text-gray-200 font-light">|</span>
-                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{new Date(ann.createdAt).toLocaleString()}</span>
+                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{formatDate(ann.createdAt)}</span>
                     </div>
                     <h3 className="text-xl font-black text-[#0d1b2a] mb-4">{ann.title}</h3>
                     <p className="text-[14px] text-gray-600 leading-relaxed font-medium">{ann.content}</p>
@@ -141,7 +141,7 @@ export default function AnnouncementBoard() {
                       <div className="flex items-center gap-4 mb-1">
                           <span className="text-[10px] font-black uppercase tracking-widest text-[#1a237e]">{notif.title}</span>
                           <span className="text-gray-200 font-light">|</span>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{new Date(notif.createdAt).toLocaleString()}</span>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{formatDate(notif.createdAt)}</span>
                       </div>
                       <p className="text-[14px] font-medium text-gray-600 leading-relaxed group-hover:text-[#1a237e] transition-colors">{notif.message}</p>
                    </div>

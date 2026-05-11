@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { collection, query, onSnapshot, getDocs, where } from 'firebase/firestore';
-import { handleFirestoreError, OperationType } from '../../lib/utils';
+import { handleFirestoreError, OperationType, formatDate } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   FileUp, 
@@ -209,7 +209,7 @@ export default function DocumentVerification({ filterType }: { filterType?: 'CLE
                     </div>
                   </td>
                   <td className="px-8 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-tighter">
-                    {new Date(sub.submittedAt).toLocaleDateString()}
+                    {formatDate(sub.submittedAt)}
                   </td>
                   <td className="px-8 py-4">
                     <span className={cn(
