@@ -1,0 +1,165 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile in the application.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["ADMIN", "STUDENT", "PHOTOGRAPHER", "LAYOUT", "FINANCE"] },
+        "studentId": { "type": "string" },
+        "course": { "type": "string" },
+        "section": { "type": "string" },
+        "batch": { "type": "string" },
+        "quote": { "type": "string" },
+        "achievements": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["uid", "email", "role", "createdAt"]
+    },
+    "Document": {
+      "title": "Document",
+      "description": "Student document submission.",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "type": { "type": "string", "enum": ["CLEARANCE", "RECEIPT", "BIRTH_CERTIFICATE", "OTHER"] },
+        "fileName": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "APPROVED", "REJECTED"] },
+        "rejectionReason": { "type": "string" },
+        "submittedAt": { "type": "string" },
+        "verifiedBy": { "type": "string" },
+        "financeStatus": { "type": "string", "enum": ["NONE", "VERIFIED", "REJECTED"] },
+        "financeVerifiedAt": { "type": "string" },
+        "financeVerifiedBy": { "type": "string" }
+      },
+      "required": ["studentId", "type", "fileName", "fileUrl", "status", "submittedAt"]
+    },
+    "Receipt": {
+      "title": "Receipt",
+      "description": "Student payment receipt tracking.",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "purpose": { "type": "string" },
+        "status": { "type": "string", "enum": ["PAID", "PENDING", "REJECTED"] },
+        "date": { "type": "string" },
+        "referenceNo": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "documentId": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["studentId", "purpose", "status", "date", "referenceNo"]
+    },
+    "BookingSession": {
+      "title": "Booking Session",
+      "description": "Photo session appointment.",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "date": { "type": "string" },
+        "timeSlot": { "type": "string" },
+        "status": { "type": "string", "enum": ["CONFIRMED", "CANCELLED", "COMPLETED"] },
+        "photographerId": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "rescheduleCount": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["studentId", "date", "timeSlot", "status", "createdAt"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "System or admin announcement.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "category": { "type": "string", "enum": ["URGENT", "GENERAL", "SCHEDULE"] },
+        "isPinned": { "type": "boolean" },
+        "authorId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "content", "category", "authorId", "createdAt"]
+    },
+    "AuditLog": {
+      "title": "Audit Log",
+      "description": "System audit trail entry.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "action": { "type": "string" },
+        "module": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["userId", "action", "module", "details", "timestamp"]
+    },
+    "Batch": {
+      "title": "Batch",
+      "description": "Batch groupings of students.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "course": { "type": "string" },
+        "section": { "type": "string" },
+        "yearLevel": { "type": "string" },
+        "studentCount": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "course", "section", "yearLevel", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "User notification.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["reminder", "status_change", "announcement", "deadline"] },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "message", "type", "isRead", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User records containing profiles and roles."
+    },
+    "/documents/{documentId}": {
+      "schema": { "$ref": "#/entities/Document" },
+      "description": "Student document submissions."
+    },
+    "/receipts/{receiptId}": {
+      "schema": { "$ref": "#/entities/Receipt" },
+      "description": "Receipt submissions."
+    },
+    "/appointments/{appointmentId}": {
+      "schema": { "$ref": "#/entities/BookingSession" },
+      "description": "Photo session bookings."
+    },
+    "/announcements/{announcementId}": {
+      "schema": { "$ref": "#/entities/Announcement" },
+      "description": "Broadcast announcements."
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Audit trails generated by admin activities."
+    },
+    "/batches/{batchId}": {
+      "schema": { "$ref": "#/entities/Batch" },
+      "description": "Student batches."
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "Notifs meant for users."
+    }
+  }
+}

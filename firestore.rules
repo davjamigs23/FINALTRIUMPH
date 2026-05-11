@@ -1,0 +1,142 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isEmailVerified() {
+      return isSignedIn() && (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'google.com');
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Super Admin check (Developer accounts)
+    function isSuperAdmin() {
+      return isSignedIn() && (
+        request.auth.token.get('email', '') == 'djignaci1@gmail.com' || 
+        request.auth.token.get('email', '') == 'djignaci2@gmail.com' ||
+        request.auth.token.get('email', '') == 'djignacio@gbox.adnu.edu.ph' ||
+        request.auth.uid == 'VXMyDQ6fQCXwj2oEaw6IK0lsCOE3' ||
+        request.auth.uid == 'gdejJ6nlPHMzlAnFZWRPj1MGpHp2'
+      );
+    }
+
+    // Role check from the users collection
+    function hasRole(role) {
+      return isSignedIn() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == role;
+    }
+
+    function isAdmin() {
+      return isSuperAdmin() || hasRole('ADMIN');
+    }
+
+    function isFinance() {
+      return isSuperAdmin() || hasRole('FINANCE') || hasRole('ADMIN');
+    }
+
+    function isValidId(id) {
+       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation Hepers
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.uid is string && data.uid.size() <= 64 &&
+             data.email is string && data.email.size() <= 255 &&
+             data.role in ['STUDENT', 'ADMIN', 'PHOTOGRAPHER', 'LAYOUT', 'FINANCE'];
+    }
+
+    function isValidDocument(data) {
+      return data.keys().hasAll(['studentId', 'type', 'status']) &&
+             data.studentId is string && data.studentId.size() <= 64 &&
+             data.type in ['CLEARANCE', 'PAYMENT_PROOF', 'BIRTH_CERTIFICATE', 'RECEIPT', 'OTHER'] &&
+             data.status in ['PENDING', 'APPROVED', 'REJECTED'];
+    }
+
+    // --- Match Rules ---
+
+    // Users collection
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if (isOwner(userId) && incoming().role == existing().role) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Documents
+    match /documents/{docId} {
+      allow read: if isAdmin() || isFinance() || isOwner(existing().studentId);
+      allow create: if isSignedIn() && incoming().studentId == request.auth.uid && isValidDocument(incoming());
+      allow update: if isAdmin() || isFinance() || (isOwner(existing().studentId) && incoming().status == existing().status);
+      allow list: if isAdmin() || isFinance() || (isSignedIn() && resource.data.studentId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // Appointments (Photo Sessions)
+    match /appointments/{apptId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && incoming().studentId == request.auth.uid;
+      allow update: if isAdmin() || isOwner(existing().studentId);
+      allow delete: if isAdmin() || isOwner(existing().studentId);
+    }
+
+    // Announcements
+    match /announcements/{id} {
+      allow read, list: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Notifications
+    match /notifications/{notifId} {
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn(); 
+      allow update, delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Batches
+    match /batches/{batchId} {
+      allow read, list: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Receipts
+    match /receipts/{receiptId} {
+      allow read, list: if isAdmin() || isFinance();
+      allow write: if isAdmin() || isFinance();
+    }
+
+    // Audit Logs
+    match /audit_logs/{logId} {
+      allow create: if isSignedIn();
+      allow read, list: if isAdmin() || isFinance();
+    }
+
+    // Settings
+    match /settings/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}
