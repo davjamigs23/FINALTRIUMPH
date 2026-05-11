@@ -149,6 +149,13 @@ export default function FinanceDashboard() {
           </div>
           
           <div className="flex items-center gap-6">
+            <button 
+              onClick={logout}
+              className="text-[10px] uppercase font-black hover:text-[#ef4444] transition-colors tracking-widest text-[#0d1b2a]/60 flex items-center gap-2"
+            >
+              <LogOut className="h-3 w-3" />
+              Logout
+            </button>
 
             <div className="flex items-center gap-3">
               <div className="text-right">

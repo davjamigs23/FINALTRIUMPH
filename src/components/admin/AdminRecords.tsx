@@ -296,7 +296,7 @@ export default function AdminRecords() {
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-[#1a237e]/5 border-2 border-white shadow-sm flex items-center justify-center text-[#1a237e] font-black text-xs uppercase overflow-hidden">
-                            {s.photoURL ? <img src={s.photoURL} alt="" referrerPolicy="no-referrer" /> : s.displayName?.slice(0, 2)}
+                            {s.photoURL ? <img src={s.photoURL} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" /> : s.displayName?.slice(0, 2)}
                         </div>
                         <div>
                           <p className="text-[13px] text-[#0d1b2a] font-black uppercase tracking-tight">{s.displayName}</p>

@@ -221,7 +221,9 @@ export default function AdminBatches() {
                     <div className="space-y-4">
                        {studentsInBatch.map(s => (
                           <div key={s.uid} className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl">
-                            <img src={s.photoURL || '/placeholder-user.png'} alt={s.displayName} className="h-12 w-12 rounded-full object-cover" />
+                            <div className="h-12 w-12 rounded-full bg-[#1a237e]/5 border border-white shadow-sm flex items-center justify-center text-[#1a237e] font-black text-sm uppercase overflow-hidden shrink-0">
+                               {s.photoURL ? <img src={s.photoURL} alt={s.displayName} className="h-full w-full object-cover" referrerPolicy="no-referrer" /> : s.displayName?.slice(0, 2)}
+                            </div>
                             <div>
                                <p className="font-black text-sm text-[#0d1b2a]">{s.displayName}</p>
                                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{s.studentId}</p>
