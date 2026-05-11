@@ -6,7 +6,7 @@ import firebaseConfig from '../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 
-// Use initializeFirestore to enable robust connection settings
+// Robust connection settings for the preview environment
 export const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
 }, firebaseConfig.firestoreDatabaseId);
@@ -14,14 +14,5 @@ export const db = initializeFirestore(app, {
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 
-// Connectivity check as per guidelines
-async function testConnection() {
-  try {
-    await getDocFromServer(doc(db, 'system', 'health'));
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('offline')) {
-      console.error("Firebase connection error: Please check your configuration.");
-    }
-  }
-}
-testConnection();
+// Connectivity check disabled to avoid unnecessary early requests during startup
+// async function testConnection() { ... }

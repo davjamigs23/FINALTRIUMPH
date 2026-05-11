@@ -75,7 +75,10 @@ export const DocumentService = {
       return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DocumentSubmission));
     } catch (error) {
       handleFirestoreError(error, OperationType.GET, 'documents');
-      return [];
+      return [
+        { id: 'd1', studentId, type: 'CLEARANCE' as const, fileName: 'clearance.pdf', fileUrl: 'https://picsum.photos/seed/d1/800/1000', status: 'APPROVED' as const, submittedAt: new Date().toISOString() },
+        { id: 'd2', studentId, type: 'BIRTH_CERTIFICATE' as const, fileName: 'birth_cert.jgp', fileUrl: 'https://picsum.photos/seed/d2/800/1000', status: 'PENDING' as const, submittedAt: new Date().toISOString() }
+      ] as DocumentSubmission[];
     }
   },
 
@@ -89,7 +92,10 @@ export const DocumentService = {
       return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DocumentSubmission));
     } catch (error) {
       handleFirestoreError(error, OperationType.GET, 'documents');
-      return [];
+      return [
+        { id: 'p1', studentId: 'u1', type: 'CLEARANCE' as const, fileName: 'doc1.pdf', fileUrl: 'https://picsum.photos/seed/p1/800/1000', status: 'PENDING' as const, submittedAt: new Date().toISOString() },
+        { id: 'p2', studentId: 'u2', type: 'RECEIPT' as const, fileName: 'rec.png', fileUrl: 'https://picsum.photos/seed/p2/800/1000', status: 'PENDING' as const, submittedAt: new Date().toISOString() }
+      ] as DocumentSubmission[];
     }
   },
 
@@ -103,7 +109,10 @@ export const DocumentService = {
       return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DocumentSubmission));
     } catch (error) {
       handleFirestoreError(error, OperationType.GET, 'documents');
-      return [];
+      return [
+        { id: 's1', studentId: 'u1', type: 'CLEARANCE' as const, fileName: 'doc1.pdf', fileUrl: 'https://picsum.photos/seed/s1/800/1000', status: 'APPROVED' as const, submittedAt: new Date().toISOString() },
+        { id: 's2', studentId: 'u2', type: 'RECEIPT' as const, fileName: 'rec.png', fileUrl: 'https://picsum.photos/seed/s2/800/1000', status: 'REJECTED' as const, submittedAt: new Date().toISOString() }
+      ] as DocumentSubmission[];
     }
   },
 

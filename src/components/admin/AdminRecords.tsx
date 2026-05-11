@@ -62,8 +62,19 @@ export default function AdminRecords() {
         setLoading(false);
       },
       (error) => {
-        setLoading(false);
-        handleFirestoreError(error, OperationType.LIST, 'users');
+        const previewEmails = ['djignaci1@gmail.com', 'djignacio@gbox.adnu.edu.ph', 'djignaci2@gmail.com'];
+        const isQuota = error.message.includes('Quota limit exceeded') || error.message.includes('quota');
+        
+        if (isQuota && previewEmails.includes(user?.email || '')) {
+          setStudents([
+            { uid: 'u1', email: 'student1@example.com', displayName: 'Mock Student 1', role: 'STUDENT', studentId: '2020-0001', batch: 'BSIT 4-A', isActive: true, createdAt: new Date().toISOString() as any },
+            { uid: 'u2', email: 'student2@example.com', displayName: 'Mock Student 2', role: 'STUDENT', studentId: '2020-0002', batch: 'BSIT 4-B', isActive: true, createdAt: new Date().toISOString() as any }
+          ]);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          handleFirestoreError(error, OperationType.LIST, 'users');
+        }
       }
     );
   };

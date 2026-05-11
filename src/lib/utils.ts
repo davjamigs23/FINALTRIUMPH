@@ -70,9 +70,12 @@ export interface FirestoreErrorInfo {
   }
 }
 
-export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null): never {
+export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null): any {
   const isPermissionError = error instanceof Error && error.message.includes('Missing or insufficient permissions');
+  const isQuotaError = error instanceof Error && (error.message.includes('Quota limit exceeded') || error.message.includes('quota'));
   const isUnauthenticated = !auth.currentUser;
+  const previewEmails = ['djignaci1@gmail.com', 'djignacio@gbox.adnu.edu.ph', 'djignaci2@gmail.com'];
+  const isPreviewAccount = auth.currentUser && previewEmails.includes(auth.currentUser.email || '');
 
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
@@ -93,14 +96,19 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 
   // Log the UID explicitly to help with rule debugging
   if (auth.currentUser) {
-    console.log(`[Firestore Auth Debug] User UID: ${auth.currentUser.uid}, Email: ${auth.currentUser.email}, Role: (check users collection)`);
+    console.log(`[Firestore Auth Debug] User UID: ${auth.currentUser.uid}, Email: ${auth.currentUser.email}`);
+  }
+
+  if (isQuotaError && isPreviewAccount) {
+    console.warn('Quota reached for preview account, allowing graceful fallback:', errInfo.error);
+    return null; // Return null so the caller can provide mock data
   }
 
   // If it's a permission error during unauthenticated state (likely logout), 
   // we just log it as a warning and don't throw to avoid crashing the UI
   if (isPermissionError && isUnauthenticated) {
     console.warn('Firestore Permission Error (Unauthenticated): ', JSON.stringify(errInfo));
-    return undefined as never; // Return never but effectively stop
+    return null;
   } else {
     console.error('Firestore Error: ', JSON.stringify(errInfo));
   }

@@ -47,18 +47,20 @@ export default function AdminDashboard({ activeTab, setActiveTab }: { activeTab:
     complianceRate: 0,
   });
   const [pieData, setPieData] = useState<any[]>([]);
+  const [batchData, setBatchData] = useState<any[]>([]);
   const [logs, setLogs] = useState<AuditLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [usersSnap, docsSnap, apptsSnap, logsSnap, complianceStats] = await Promise.all([
+        const [usersSnap, docsSnap, apptsSnap, logsSnap, complianceStats, batchStats] = await Promise.all([
           getDocs(query(collection(db, 'users'), where('role', '==', 'STUDENT'))),
           getDocs(collection(db, 'documents')),
           getDocs(query(collection(db, 'appointments'), where('date', '==', new Date().toISOString().split('T')[0]))),
           getDocs(query(collection(db, 'audit_logs'), orderBy('timestamp', 'desc'), limit(5))),
-          ComplianceService.getStats()
+          ComplianceService.getStats(),
+          ComplianceService.getBatchComplianceStats()
         ]);
 
         const total = usersSnap.size;
@@ -71,6 +73,8 @@ export default function AdminDashboard({ activeTab, setActiveTab }: { activeTab:
           sessionsToday: apptsSnap.size,
           complianceRate: complianceStats.completePercent,
         });
+
+        setBatchData(batchStats);
 
         // Verification Pie
         const pending = docs.filter(d => d.status === 'PENDING').length;
@@ -117,22 +121,23 @@ export default function AdminDashboard({ activeTab, setActiveTab }: { activeTab:
       <div className="md:col-span-3 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm min-h-[360px]">
         <div className="flex items-center justify-between mb-6">
            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#0d1b2a]">Completion by Batch</h3>
-           <div className="bg-gray-50 px-3 py-1 rounded text-[10px] font-bold text-gray-400">BATCH OF 2026</div>
+           <div className="bg-gray-50 px-3 py-1 rounded text-[10px] font-bold text-gray-400 uppercase">Real-time Batch Stats</div>
         </div>
         <div className="h-[280px] w-full flex items-center justify-center text-gray-300">
-           {stats.totalStudents > 0 ? (
+           {batchData.length > 0 ? (
              <ResponsiveContainer width="100%" height="100%">
-               <BarChart data={[{ name: 'General', complete: stats.complianceRate, pending: 100 - stats.complianceRate }]}>
+               <BarChart data={batchData}>
                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                 <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                 <Tooltip />
-                 <Bar dataKey="complete" fill="#1a237e" barSize={40} />
+                 <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 'bold' }} />
+                 <YAxis tick={{ fontSize: 10 }} unit="%" />
+                 <Tooltip cursor={{ fill: '#f8fafc' }} />
+                 <Bar dataKey="complete" name="Complete %" fill="#1a237e" barSize={40} radius={[4, 4, 0, 0]} />
                </BarChart>
              </ResponsiveContainer>
            ) : (
              <div className="text-center">
                <Briefcase className="h-8 w-8 mx-auto mb-2 opacity-20" />
-               <p className="text-[10px] font-bold uppercase tracking-widest opacity-40">No student data found</p>
+               <p className="text-[10px] font-bold uppercase tracking-widest opacity-40">No batch data available</p>
              </div>
            )}
         </div>

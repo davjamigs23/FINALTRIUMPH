@@ -20,8 +20,17 @@ export const AuthForm: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
+    setMessage(null);
     try {
-        await signIn();
+        if (!isLogin && (role === 'FINANCE' || role === 'ADMIN')) {
+          if (role === 'FINANCE' && secretCode !== 'Finance123') {
+            throw new Error('Invalid Finance Admin code.');
+          }
+          if (role === 'ADMIN' && secretCode !== 'Admin123') {
+            throw new Error('Invalid Admin code.');
+          }
+        }
+        await signIn(!isLogin, role, displayName);
     } catch (err: any) {
         setMessage({ text: err.message, type: 'error' });
     } finally {

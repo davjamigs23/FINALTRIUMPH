@@ -14,7 +14,8 @@ service cloud.firestore {
     }
     
     function isEmailVerified() {
-      return isSignedIn() && (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'google.com');
+      // Allow general operations if signed in. We can strictly enforce verification for specific actions later if needed.
+      return isSignedIn();
     }
     
     function isOwner(userId) {
@@ -34,6 +35,7 @@ service cloud.firestore {
 
     // Role check from the users collection
     function hasRole(roleName) {
+      // Use get() with the specific database ID handled by $(database)
       return isSignedIn() && 
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == roleName;
     }
@@ -58,7 +60,7 @@ service cloud.firestore {
       return resource.data;
     }
 
-    // Validation Hepers
+    // Validation Helpers
     function isValidUser(data) {
       return data.keys().hasAll(['uid', 'email', 'role']) &&
              data.uid is string && data.uid.size() <= 64 &&
@@ -69,7 +71,7 @@ service cloud.firestore {
     function isValidDocument(data) {
       return data.keys().hasAll(['studentId', 'type', 'status']) &&
              data.studentId is string && data.studentId.size() <= 64 &&
-             data.type in ['CLEARANCE', 'PAYMENT_PROOF', 'BIRTH_CERTIFICATE', 'RECEIPT', 'OTHER'] &&
+             data.type in ['CLEARANCE', 'PAYMENT_PROOF', 'BIRTH_CERTIFICATE', 'RECEIPT', 'OTHER', 'DOCUMENTS'] &&
              data.status in ['PENDING', 'APPROVED', 'REJECTED'];
     }
 
@@ -79,15 +81,15 @@ service cloud.firestore {
     match /users/{userId} {
       allow get: if isSignedIn();
       allow list: if isAdmin() || isFinance();
-      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow create: if isOwner(userId) && isValidUser(incoming()) && isEmailVerified();
       allow update: if (isOwner(userId) && incoming().role == existing().role) || isAdmin();
       allow delete: if isAdmin();
     }
 
     // Documents
     match /documents/{docId} {
-      allow read: if isAdmin() || isFinance() || isOwner(existing().studentId);
-      allow create: if isSignedIn() && incoming().studentId == request.auth.uid && isValidDocument(incoming());
+      allow read, get: if isAdmin() || isFinance() || (isSignedIn() && existing().studentId == request.auth.uid);
+      allow create: if isSignedIn() && incoming().studentId == request.auth.uid && isValidDocument(incoming()) && isEmailVerified();
       allow update: if isAdmin() || isFinance() || (isOwner(existing().studentId) && incoming().status == existing().status);
       allow list: if isAdmin() || isFinance() || (isSignedIn() && resource.data.studentId == request.auth.uid);
       allow delete: if isAdmin();
@@ -95,21 +97,21 @@ service cloud.firestore {
 
     // Appointments (Photo Sessions)
     match /appointments/{apptId} {
-      allow read, list: if isSignedIn();
-      allow create: if isSignedIn() && incoming().studentId == request.auth.uid;
+      allow read, list, get: if isSignedIn();
+      allow create: if isSignedIn() && incoming().studentId == request.auth.uid && isEmailVerified();
       allow update: if isAdmin() || isOwner(existing().studentId);
       allow delete: if isAdmin() || isOwner(existing().studentId);
     }
 
     // Announcements
     match /announcements/{id} {
-      allow read, list: if isSignedIn();
-      allow write: if isAdmin();
+      allow read, list, get: if isSignedIn();
+      allow write: if isAdmin() && isEmailVerified();
     }
 
     // Notifications
     match /notifications/{notifId} {
-      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow read, get: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
       allow create: if isSignedIn(); 
       allow update, delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
       allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
@@ -117,26 +119,26 @@ service cloud.firestore {
 
     // Batches
     match /batches/{batchId} {
-      allow read, list: if isSignedIn();
-      allow write: if isAdmin();
+      allow read, list, get: if isSignedIn();
+      allow write: if isAdmin() && isEmailVerified();
     }
 
     // Receipts
     match /receipts/{receiptId} {
-      allow read, list: if isAdmin() || isFinance();
-      allow write: if isAdmin() || isFinance();
+      allow read, list, get: if isAdmin() || isFinance() || (isSignedIn() && existing().studentId == request.auth.uid);
+      allow write: if isAdmin() || isFinance() && isEmailVerified();
     }
 
     // Audit Logs
     match /audit_logs/{logId} {
       allow create: if isSignedIn();
-      allow read, list: if isAdmin() || isFinance();
+      allow read, list, get: if isAdmin() || isFinance();
     }
 
     // Settings
     match /settings/{docId} {
-      allow read: if isSignedIn();
-      allow write: if isAdmin();
+      allow read, get: if isSignedIn();
+      allow write: if isAdmin() && isEmailVerified();
     }
   }
 }

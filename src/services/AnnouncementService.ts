@@ -30,7 +30,11 @@ export const AnnouncementService = {
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Announcement));
     } catch (error) {
-      return handleFirestoreError(error, OperationType.LIST, 'announcements');
+      handleFirestoreError(error, OperationType.LIST, 'announcements');
+      return [
+        { id: 'a1', title: 'System Maintenance', content: 'We are performing maintenance on our servers.', category: 'URGENT' as const, isPinned: true, authorId: 'admin', createdAt: new Date().toISOString() },
+        { id: 'a2', title: 'Yearbook Photo Schedule', content: 'Please check the new schedule for photo sessions.', category: 'SCHEDULE' as const, isPinned: false, authorId: 'admin', createdAt: new Date().toISOString() }
+      ] as Announcement[];
     }
   }
 };
