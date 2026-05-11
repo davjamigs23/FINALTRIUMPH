@@ -24,16 +24,18 @@ service cloud.firestore {
     // Super Admin check (Developer accounts)
     function isSuperAdmin() {
       return isSignedIn() && (
-        request.auth.token.email == 'djignaci1@gmail.com' || 
-        request.auth.token.email == 'djignaci2@gmail.com' ||
-        request.auth.token.email == 'djignacio@gbox.adnu.edu.ph'
+        request.auth.token.get('email', '').lower() == 'djignaci1@gmail.com' || 
+        request.auth.token.get('email', '').lower() == 'djignaci2@gmail.com' ||
+        request.auth.token.get('email', '').lower() == 'djignacio@gbox.adnu.edu.ph' ||
+        request.auth.uid == 'VXMyDQ6fQCXwj2oEaw6IK0lsCOE3' ||
+        request.auth.uid == 'gdejJ6nlPHMzlAnFZWRPj1MGpHp2'
       );
     }
 
     // Role check from the users collection
     function hasRole(roleName) {
       return isSignedIn() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == roleName;
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == roleName;
     }
 
     function isAdmin() {
@@ -76,7 +78,7 @@ service cloud.firestore {
     // Users collection
     match /users/{userId} {
       allow get: if isSignedIn();
-      allow list: if isAdmin();
+      allow list: if isAdmin() || isFinance();
       allow create: if isOwner(userId) && isValidUser(incoming());
       allow update: if (isOwner(userId) && incoming().role == existing().role) || isAdmin();
       allow delete: if isAdmin();

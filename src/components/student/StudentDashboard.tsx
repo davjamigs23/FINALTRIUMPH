@@ -20,6 +20,7 @@ import { ScheduleService } from '../../services/ScheduleService';
 import { NotificationService, Notification } from '../../services/NotificationService';
 import { AnnouncementService } from '../../services/AnnouncementService';
 import { DocumentSubmission, BookingSession, Announcement } from '../../types';
+import YearbookPreview from './YearbookPreview';
 
 interface RequirementItemProps {
   label: string;
@@ -205,6 +206,37 @@ export default function StudentDashboard({ activeTab, setActiveTab }: { activeTa
                 <RequirementItem label="Photo Session" status={booking ? 'complete' : 'action'} onClick={() => setActiveTab('schedule')} />
               </div>
            </div>
+
+            {/* Expanded Yearbook Preview */}
+            <div className="bg-white border border-gray-100 rounded-3xl p-10 shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:rotate-12 transition-all duration-1000" id="yearbook-preview-watermark">
+                    <Layers className="h-64 w-64 text-[#1a237e]" />
+                </div>
+                
+                <div className="relative z-10">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
+                        <div>
+                            <h3 className="text-[16px] font-black uppercase tracking-[0.1em] text-[#0d1b2a]" id="yearbook-preview-title">Live Yearbook Preview</h3>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Class of 2026 • Ateneo de Naga University • {user?.course || 'No Course Set'}</p>
+                        </div>
+                        <button 
+                            id="edit-yearbook-btn"
+                            onClick={() => setActiveTab('profile')}
+                            className="inline-flex items-center gap-3 px-8 py-3 bg-[#1a237e] text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-[#1a237e]/90 transition-all shadow-xl shadow-[#1a237e]/20"
+                        >
+                            Update Portrait Details
+                        </button>
+                    </div>
+
+                    <div className="flex justify-center bg-gray-50/50 rounded-[40px] p-12 lg:p-20 border border-gray-100/50" id="yearbook-preview-container">
+                        <div className="transform transition-all hover:scale-[1.01] duration-500">
+                          {user && (
+                            <YearbookPreview user={user} className="scale-110 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.2)]" />
+                          )}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {/* Quick Actions removed from here */}
         </div>

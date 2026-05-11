@@ -3,7 +3,7 @@ import { db } from '../../firebase';
 import { collection, query, getDocs, orderBy, where } from 'firebase/firestore';
 import { BookingSession, AppUser } from '../../types';
 import { Calendar, Search, Clock, User, X, Filter, CheckCircle2, Trash2 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn, handleFirestoreError, OperationType } from '../../lib/utils';
 import { ScheduleService } from '../../services/ScheduleService';
 import { useAuth } from '../../hooks/useAuth';
 import FeedbackModal from '../ui/FeedbackModal';

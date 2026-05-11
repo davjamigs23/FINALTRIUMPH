@@ -91,12 +91,16 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     path
   }
 
+  // Log the UID explicitly to help with rule debugging
+  if (auth.currentUser) {
+    console.log(`[Firestore Auth Debug] User UID: ${auth.currentUser.uid}, Email: ${auth.currentUser.email}, Role: (check users collection)`);
+  }
+
   // If it's a permission error during unauthenticated state (likely logout), 
   // we just log it as a warning and don't throw to avoid crashing the UI
   if (isPermissionError && isUnauthenticated) {
     console.warn('Firestore Permission Error (Unauthenticated): ', JSON.stringify(errInfo));
-    // We still throw to avoid returning 'never' correctly, but maybe we should return null?
-    // Actually, callers expect this to throw or return never.
+    return undefined as never; // Return never but effectively stop
   } else {
     console.error('Firestore Error: ', JSON.stringify(errInfo));
   }

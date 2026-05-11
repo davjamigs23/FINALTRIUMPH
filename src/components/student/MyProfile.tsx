@@ -11,6 +11,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, auth, storage } from '../../firebase';
 
 import FeedbackModal from '../ui/FeedbackModal';
+import YearbookPreview from './YearbookPreview';
 
 export default function MyProfile() {
   const { user } = useAuth();
@@ -335,59 +336,18 @@ export default function MyProfile() {
                 exit={{ opacity: 0, y: -20 }}
                 className="flex justify-center py-8"
               >
-                 {/* Yearbook Page Mockup */}
-                 <div className="w-[400px] h-auto min-h-[600px] bg-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] rounded-sm p-10 flex flex-col items-center border border-gray-100 relative font-serif">
-                    <div className="w-12 h-12 mb-6 grayscale opacity-60">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/e/e2/Ateneo_de_Naga_University_logo.png" alt="University Logo" className="w-full h-full object-contain" />
-                    </div>
-                    
-                    <div className="text-center mb-10">
-                        <h2 className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-1">Ateneo de Naga University</h2>
-                        <h3 className="text-[9px] font-medium tracking-[0.2em] uppercase text-gray-300">Class of 2026</h3>
-                    </div>
-
-                    <div className="w-64 h-80 border-8 border-double border-gray-200 mb-8 overflow-hidden bg-gray-50 p-2">
-                       <div className="w-full h-full overflow-hidden">
-                          {user.photoURL ? (
-                            <img src={user.photoURL} alt="Yearbook Preview" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                               <UserIcon className="h-20 w-20 text-gray-200" />
-                            </div>
-                          )}
-                       </div>
-                    </div>
-
-                    <div className="text-center w-full">
-                       <h1 className="text-[32px] font-bold text-[#0d1b2a] leading-tight mb-2 tracking-tighter">
-                          {editedValues.displayName}
-                       </h1>
-                       <div className="h-0.5 w-16 bg-[#fbbd08] mx-auto mb-6" />
-                       
-                       <div className="space-y-1 mb-8">
-                         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#1a237e]">{editedValues.course}</p>
-                         <p className="text-[10px] font-medium text-gray-400 capitalize">Major in {editedValues.section}</p>
-                       </div>
-
-                       <div className="relative px-4">
-                          <span className="absolute top-0 left-0 text-4xl text-[#fbbd08] opacity-30 leading-none">"</span>
-                          <p className="text-[13px] italic text-[#0d1b2a]/80 leading-relaxed py-4">
-                            {editedValues.quote || 'This is where your inspirational quote will appear on the final printed page of the yearbook.'}
-                          </p>
-                          <span className="absolute bottom-0 right-0 text-4xl text-[#fbbd08] opacity-30 leading-none rotate-180">"</span>
-                       </div>
-
-                       {editedValues.achievements && (
-                          <div className="mt-8 pt-8 border-t border-gray-100 flex flex-wrap justify-center gap-2">
-                             {editedValues.achievements.split('\n').filter(a => a.trim()).slice(0, 3).map((a, i) => (
-                               <span key={i} className="text-[9px] font-black uppercase tracking-widest text-[#85b27a] border border-[#85b27a]/20 px-2 py-1 rounded">
-                                 {a}
-                               </span>
-                             ))}
-                          </div>
-                       )}
-                    </div>
-                 </div>
+                 <YearbookPreview 
+                   user={{
+                     ...user,
+                     displayName: editedValues.displayName,
+                     course: editedValues.course,
+                     section: editedValues.section,
+                     quote: editedValues.quote,
+                     achievements: editedValues.achievements,
+                     batch: editedValues.batch
+                   }}
+                   className="scale-100 origin-center w-[400px] min-h-[600px] p-10"
+                 />
               </motion.div>
             )}
           </AnimatePresence>
