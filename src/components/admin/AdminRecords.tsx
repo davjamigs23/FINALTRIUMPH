@@ -61,7 +61,10 @@ export default function AdminRecords() {
         setBatches(bData);
         setLoading(false);
       },
-      (error) => handleFirestoreError(error, OperationType.LIST, 'users')
+      (error) => {
+        setLoading(false);
+        handleFirestoreError(error, OperationType.LIST, 'users');
+      }
     );
   };
 

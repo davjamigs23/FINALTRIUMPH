@@ -20,14 +20,20 @@ export default function AdminScheduleManagement() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      const [sessionsSnap, usersSnap] = await Promise.all([
-        getDocs(query(collection(db, 'appointments'))),
-        getDocs(query(collection(db, 'users'), where('role', '==', 'STUDENT')))
-      ]);
-      setSessions(sessionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingSession)));
-      setStudents(usersSnap.docs.map(doc => ({ uid: doc.id, ...doc.data() } as AppUser)));
-      setLoading(false);
+      try {
+        setLoading(true);
+        const [sessionsSnap, usersSnap] = await Promise.all([
+          getDocs(query(collection(db, 'appointments'))),
+          getDocs(query(collection(db, 'users'), where('role', '==', 'STUDENT')))
+        ]);
+        setSessions(sessionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingSession)));
+        setStudents(usersSnap.docs.map(doc => ({ uid: doc.id, ...doc.data() } as AppUser)));
+      } catch (error) {
+        console.error('Error fetching schedule data:', error);
+        handleFirestoreError(error, OperationType.LIST, 'admin_schedule');
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);

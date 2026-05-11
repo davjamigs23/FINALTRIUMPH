@@ -52,7 +52,10 @@ export default function DocumentVerification({ filterType }: { filterType?: 'CLE
       (snap) => {
         setStudents(snap.docs.map(doc => ({ uid: doc.id, ...doc.data() } as AppUser)));
       },
-      (error) => handleFirestoreError(error, OperationType.LIST, 'users')
+      (error) => {
+        setLoading(false);
+        handleFirestoreError(error, OperationType.LIST, 'users');
+      }
     );
     
     return () => {

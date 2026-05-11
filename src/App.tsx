@@ -15,7 +15,13 @@ import { Loader2 } from 'lucide-react';
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab ] = useState('dashboard');
+
+  React.useEffect(() => {
+    if (user) {
+      setActiveTab('dashboard');
+    }
+  }, [user?.uid]);
 
   if (loading) {
     return (

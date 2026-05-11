@@ -26,7 +26,10 @@ export default function AdminBatches() {
       (snap) => {
         setBatches(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BatchGroup)));
       },
-      (error) => handleFirestoreError(error, OperationType.LIST, 'batches')
+      (error) => {
+        setLoading(false);
+        handleFirestoreError(error, OperationType.LIST, 'batches');
+      }
     );
 
     const unsubStudents = onSnapshot(query(collection(db, 'users'), where('role', '==', 'STUDENT')), 
@@ -34,7 +37,10 @@ export default function AdminBatches() {
         setStudents(snap.docs.map(doc => ({ uid: doc.id, ...doc.data() } as AppUser)));
         setLoading(false);
       },
-      (error) => handleFirestoreError(error, OperationType.LIST, 'users')
+      (error) => {
+        setLoading(false);
+        handleFirestoreError(error, OperationType.LIST, 'users');
+      }
     );
 
     return () => {

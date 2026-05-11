@@ -71,6 +71,9 @@ export interface FirestoreErrorInfo {
 }
 
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null): never {
+  const isPermissionError = error instanceof Error && error.message.includes('Missing or insufficient permissions');
+  const isUnauthenticated = !auth.currentUser;
+
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
@@ -87,6 +90,16 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     operationType,
     path
   }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
+
+  // If it's a permission error during unauthenticated state (likely logout), 
+  // we just log it as a warning and don't throw to avoid crashing the UI
+  if (isPermissionError && isUnauthenticated) {
+    console.warn('Firestore Permission Error (Unauthenticated): ', JSON.stringify(errInfo));
+    // We still throw to avoid returning 'never' correctly, but maybe we should return null?
+    // Actually, callers expect this to throw or return never.
+  } else {
+    console.error('Firestore Error: ', JSON.stringify(errInfo));
+  }
+  
   throw new Error(JSON.stringify(errInfo));
 }

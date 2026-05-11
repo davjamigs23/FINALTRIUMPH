@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (!userDoc.exists()) {
         const email = result.user.email || '';
-        const isSuperAdminCheck = email === 'djignaci1@gmail.com' || email === 'djignaci2@gmail.com';
+        const isSuperAdminCheck = email === 'djignaci1@gmail.com' || email === 'djignaci2@gmail.com' || email === 'djignacio@gbox.adnu.edu.ph';
         const finalRole = isSuperAdminCheck ? 'ADMIN' : 'STUDENT';
         
         const newUser = {
@@ -129,7 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);                
       
-      const isSuperAdminCheck = email === 'djignaci1@gmail.com' || email === 'djignaci2@gmail.com';
+      const isSuperAdminCheck = email === 'djignaci1@gmail.com' || email === 'djignaci2@gmail.com' || email === 'djignacio@gbox.adnu.edu.ph';
       // If they are a super admin, we let them choose their role for testing, but default to ADMIN if they choose ADMIN.
       // Actually, just respect the passed role since they are the ones choosing it in the UI.
       const finalRole = role;

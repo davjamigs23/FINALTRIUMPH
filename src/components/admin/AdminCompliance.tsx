@@ -14,11 +14,17 @@ export default function AdminCompliance() {
   const [feedback, setFeedback] = useState<any>(null);
 
   useEffect(() => {
-    const unsub = ComplianceService.subscribeToComplianceData((s, nc) => {
+    const unsub = ComplianceService.subscribeToComplianceData(
+      (s, nc) => {
         setStats(s);
         setNonCompliant(nc);
         setLoading(false);
-    });
+      },
+      (error) => {
+        console.error('Compliance error:', error);
+        setLoading(false);
+      }
+    );
     return () => unsub();
   }, []);
 

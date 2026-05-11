@@ -97,10 +97,15 @@ export const ComplianceService = {
     }
   },
 
-  subscribeToComplianceData(callback: (stats: ComplianceStats, nonCompliant: any[]) => void) {
+  subscribeToComplianceData(callback: (stats: ComplianceStats, nonCompliant: any[]) => void, onError?: (error: any) => void) {
+    const handleError = (error: any) => {
+      handleFirestoreError(error, OperationType.LIST, 'users');
+      if (onError) onError(error);
+    };
+
     const unsubStudents = onSnapshot(collection(db, 'users'), 
       () => this.triggerUpdate(callback),
-      (error) => handleFirestoreError(error, OperationType.LIST, 'users')
+      handleError
     );
     const unsubDocs = onSnapshot(collection(db, 'documents'), 
       () => this.triggerUpdate(callback),
@@ -112,7 +117,9 @@ export const ComplianceService = {
     );
     
     // Initial trigger
-    this.triggerUpdate(callback);
+    this.triggerUpdate(callback).catch(err => {
+      if (onError) onError(err);
+    });
     
     return () => {
       unsubStudents();
